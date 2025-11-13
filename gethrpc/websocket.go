@@ -139,6 +139,13 @@ func DialWebsocket(ctx context.Context, endpoint, origin string) (*Client, error
 		WriteBufferSize: wsWriteBuffer,
 		WriteBufferPool: wsBufferPool,
 	}
+	if http.DefaultTransport != nil {
+		t, ok := http.DefaultTransport.(*http.Transport)
+		if ok {
+			dialer.NetDialContext = t.DialContext
+		}
+	}
+
 	return newClient(ctx, func(ctx context.Context) (ServerCodec, error) {
 		conn, resp, err := dialer.DialContext(ctx, endpoint, header)
 		if err != nil {
